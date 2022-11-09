@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -20,6 +20,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     const servicesCollection = client.db("sweetHealth").collection("services");
+    const reviewsCollection = client.db("sweetHealth").collection("reviews");
 
     app.get("/services", async (req, res) => {
       const query = {};
@@ -33,6 +34,20 @@ async function run() {
       const cursor = servicesCollection.find(query);
       const threeServices = await cursor.limit(3).toArray();
       res.send(threeServices);
+    });
+
+    app.get("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const service = await servicesCollection.findOne(query);
+      res.send(service);
+    });
+
+    // reviews-----
+    app.post("/reviews", async (req, res) => {
+      const reviews = req.body;
+      const result = await reviewsCollection.insertOne(reviews);
+      res.send(result);
     });
   } finally {
   }
