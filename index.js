@@ -44,9 +44,24 @@ async function run() {
     });
 
     // reviews-----
+
+    app.get("/reviews", async (req, res) => {
+      let query = {};
+      if (req.query.service) {
+        query = {
+          "reviews.service": req.query.service,
+        };
+      }
+      const cursor = reviewsCollection.find(query).sort({ time: -1 });
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
     app.post("/reviews", async (req, res) => {
       const reviews = req.body;
-      const result = await reviewsCollection.insertOne(reviews);
+      const result = await reviewsCollection.insertMany([
+        { reviews: reviews, time: new Date() },
+      ]);
       res.send(result);
     });
   } finally {
