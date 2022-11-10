@@ -57,7 +57,7 @@ async function run() {
       res.send(reviews);
     });
 
-    app.get("/my-reviews", async (req, res) => {
+    app.get("/myreviews", async (req, res) => {
       let query = {};
       if (req.query.email) {
         query = {
@@ -74,6 +74,19 @@ async function run() {
       const result = await reviewsCollection.insertMany([
         { reviews: reviews, time: new Date() },
       ]);
+      res.send(result);
+    });
+
+    app.patch("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const reviews = req.body;
+      const updatedField = {
+        $set: {
+          reviews: reviews,
+        },
+      };
+      const result = await reviewsCollection.updateOne(query, updatedField);
       res.send(result);
     });
 
