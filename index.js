@@ -57,11 +57,30 @@ async function run() {
       res.send(reviews);
     });
 
+    app.get("/my-reviews", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = {
+          "reviews.email": req.query.email,
+        };
+      }
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
     app.post("/reviews", async (req, res) => {
       const reviews = req.body;
       const result = await reviewsCollection.insertMany([
         { reviews: reviews, time: new Date() },
       ]);
+      res.send(result);
+    });
+
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewsCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
